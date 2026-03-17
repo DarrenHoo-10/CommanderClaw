@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CommanderClaw Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e14;
+      --bg-secondary: #111820;
+      --bg-tertiary: #1a222e;
+      --bg-card: #151d28;
+      --border-color: #2a3a4d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #484f58;
+      --accent-green: #00ff88;
+      --accent-cyan: #00d4ff;
+      --accent-orange: #ff6b35;
+      --accent-red: #ff4757;
+      --accent-yellow: #ffc048;
+      --accent-purple: #a855f7;
+    }
+
+    body.light {
+      --bg-primary: #f0f4f8;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e8eef4;
+      --bg-card: #ffffff;
+      --border-color: #c8d4e0;
+      --text-primary: #1a202c;
+      --text-secondary: #4a5568;
+      --text-muted: #a0aec0;
+      --accent-green: #00c853;
+      --accent-cyan: #0097a7;
+      --accent-orange: #e65100;
+      --accent-red: #d32f2f;
+      --accent-yellow: #f9a825;
+      --accent-purple: #7b1fa2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans SC', 'JetBrains Mono', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 14px;
+      color: var(--bg-primary);
+    }
+
+    .logo-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .logo-subtitle {
+      font-size: 8px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+    }
+
+    .nav {
+      flex: 1;
+      padding: 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 4px;
+    }
+
+    .nav-item:hover { background: var(--bg-tertiary); }
+    .nav-item.active {
+      background: rgba(0, 212, 255, 0.1);
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    .nav-item .nav-icon { font-size: 16px; }
+    .nav-item .nav-label { font-size: 12px; font-weight: 500; }
+    .nav-item.active .nav-label { color: var(--accent-cyan); }
+
+    .king-section {
+      padding: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .king-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px;
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 6px;
+    }
+
+    .king-badge span {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px;
+      color: var(--accent-purple);
+      letter-spacing: 1px;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    /* Main */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .header-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+
+    .header-status { display: flex; gap: 20px; }
+
+    .header-stat { display: flex; align-items: center; gap: 6px; }
+    .header-stat .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    .header-stat .stat-label { font-size: 10px; color: var(--text-muted); }
+
+    /* Page */
+    .page {
+      flex: 1;
+      display: none;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .page.active { display: flex; flex-direction: column; }
+
+    .command-layout {
+      display: flex;
+      flex: 1;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .chat-section { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .tasks-section { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; }
+
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-title .icon {
+      width: 5px;
+      height: 5px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .card-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* Chat */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message { display: flex; gap: 10px; }
+
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .message-avatar.king { background: linear-gradient(135deg, var(--accent-purple), #7c3aed); }
+    .message-avatar.commander { background: linear-gradient(135deg, var(--accent-orange), #ea580c); }
+    .message-avatar.soldier { background: linear-gradient(135deg, var(--accent-cyan), #0891b2); }
+
+    .message-content { flex: 1; min-width: 0; }
+    .message-header { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+    .message-sender { font-weight: 600; font-size: 12px; }
+    .message-time { font-size: 9px; color: var(--text-muted); }
+    .message-text { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
+    .message.king .message-sender { color: var(--accent-purple); }
+    .message.commander .message-sender { color: var(--accent-orange); }
+    .message.soldier .message-sender { color: var(--accent-cyan); }
+
+    .command-input {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+    }
+
+    .command-input input {
+      flex: 1;
+      padding: 10px 14px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .command-input input:focus { outline: none; border-color: var(--accent-cyan); }
+
+    .command-input button {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+      border: none;
+      border-radius: 6px;
+      color: var(--bg-primary);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+
+    /* Tasks */
+    .tasks-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-item {
+      padding: 12px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      border-left: 3px solid var(--accent-green);
+    }
+
+    .task-item.running { border-left-color: var(--accent-cyan); }
+    .task-item.pending { border-left-color: var(--accent-yellow); }
+    .task-item.completed { border-left-color: var(--text-muted); opacity: 0.7; }
+
+    .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .task-name { font-weight: 500; font-size: 12px; }
+    .task-status { font-size: 8px; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+    .task-status.running { background: rgba(0, 212, 255, 0.1); color: var(--accent-cyan); }
+    .task-status.pending { background: rgba(255, 192, 72, 0.1); color: var(--accent-yellow); }
+    .task-status.completed { background: rgba(72, 79, 88, 0.1); color: var(--text-muted); }
+
+    .task-meta { display: flex; gap: 10px; font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+    .task-progress { height: 3px; background: var(--bg-primary); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .task-progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green)); transition: width 0.3s; }
+
+    /* Monitor */
+    .monitor-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .nodes-list, .logs-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .node-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      border-left: 3px solid var(--accent-green);
+    }
+
+    .node-item.commander { border-left-color: var(--accent-orange); background: rgba(255, 107, 53, 0.05); }
+    .node-item.offline { border-left-color: var(--text-muted); opacity: 0.6; }
+    .node-item.busy { border-left-color: var(--accent-yellow); }
+
+    .node-info { display: flex; align-items: center; gap: 10px; }
+    .node-status { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); }
+    .node-item.commander .node-status { background: var(--accent-orange); }
+    .node-item.offline .node-status { background: var(--text-muted); }
+    .node-item.busy .node-status { background: var(--accent-yellow); animation: pulse 1s infinite; }
+
+    .node-name { font-weight: 600; font-size: 12px; }
+    .node-id { font-size: 9px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .node-meta { display: flex; align-items: center; gap: 10px; }
+    .capability-tag { font-size: 8px; padding: 2px 5px; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 3px; color: var(--accent-cyan); }
+    .node-load { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-secondary); }
+    .commander-badge { font-size: 8px; padding: 2px 6px; background: rgba(255, 107, 53, 0.1); border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 3px; color: var(--accent-orange); font-weight: 600; }
+
+
+    .log-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; background: var(--bg-tertiary); border-radius: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+    .log-time { color: var(--text-muted); }
+    .log-type { font-weight: 600; }
+    .log-type.heartbeat { color: var(--accent-green); }
+    .log-type.election { color: var(--accent-cyan); }
+    .log-type.task { color: var(--accent-yellow); }
+    .log-type.alert { color: var(--accent-red); }
+    .log-message { color: var(--text-secondary); }
+
+    .topology { height: 140px; position: relative; display: flex; align-items: center; justify-content: center; }
+    .topology-node { position: absolute; width: 50px; height: 50px; background: var(--bg-tertiary); border: 2px solid var(--accent-cyan); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 8px; font-weight: 600; color: var(--accent-cyan); }
+    .topology-node.commander { border-color: var(--accent-orange); color: var(--accent-orange); }
+    .topology-node.offline { opacity: 0.4; border-color: var(--text-muted); }
+
+    .add-btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; background: transparent; border: 1px dashed var(--border-color); border-radius: 4px; color: var(--text-secondary); font-size: 10px; cursor: pointer; }
+    .add-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+
+    @media (max-width: 900px) {
+      .command-layout { flex-direction: column; }
+      .tasks-section { width: 100%; max-height: 250px; }
+      .monitor-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
+
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">CC</div>
+          <div>
+            <div class="logo-text">CLAW</div>
+            <div class="logo-subtitle">CommanderClaw</div>
+          </div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item active" onclick="switchPage('command')">
+          <span class="nav-icon">💬</span>
+          <span class="nav-label">CommanderClaw</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('monitor')">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Monitor</span>
+        </div>
+      </nav>
+      <div class="king-section">
+        <div class="king-badge">
+          <span>👑</span>
+          <span>KING</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-title">CommanderClaw</div>
+        <div class="header-status">
+          <div class="header-stat"><span class="stat-value">4</span><span class="stat-label">Nodes</span></div>
+          <div class="header-stat"><span class="stat-value">2</span><span class="stat-label">Tasks</span></div>
+          <div class="header-stat"><span class="stat-value" style="color:var(--accent-orange)">B</span><span class="stat-label">Commander</span></div>
+        </div>
+      </header>
+
+      <!-- Command Page -->
+      <div class="page command-page active" id="page-command">
+        <div class="command-layout">
+          <div class="chat-section card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon"></span>COMMAND CHANNEL</div>
+            </div>
+            <div class="card-body">
+              <div class="chat-messages" id="chatMessages">
+                <div class="message king">
+                  <div class="message-avatar king">👑</div>
+                  <div class="message-content">
+                    <div class="message-header"><span class="message-sender">King</span><span class="message-time">10:40:15</span></div>
+                    <div class="message-text">帮我写一个登录页面，前端用 React，后端用 Node.js</div>
+                  </div>
+                </div>
+                <div class="message commander">
+                  <div class="message-avatar commander">⭐</div>
+                  <div class="message-content">
+                    <div class="message-header"><span class="message-sender">Commander (Laptop-02)</span><span class="message-time">10:40:18</span></div>
+                    <div class="message-text">收到，正在分配任务...</div>
+                  </div>
+                </div>
+                <div class="message commander">
+                  <div class="message-avatar commander">⭐</div>
+                  <div class="message-content">
+                    <div class="message-header"><span class="message-sender">Commander</span><span class="message-time">10:40:20</span></div>
+                    <div class="message-text">→ @Soldier-B: 前端 React 登录组件<br>→ @Soldier-C: 后端登录 API</div>
+                  </div>
+                </div>
+                <div class="message soldier">
+                  <div class="message-avatar soldier">S</div>
+                  <div class="message-content">
+                    <div class="message-header"><span class="message-sender">Soldier-B (PC-Zhang)</span><span class="message-time">10:41:05</span></div>
+                    <div class="message-text">开始编写前端登录组件...</div>
+                  </div>
+                </div>
+                <div class="message soldier">
+                  <div class="message-avatar soldier">S</div>
+                  <div class="message-content">
+                    <div class="message-header"><span class="message-sender">Soldier-C (Server-01)</span><span class="message-time">10:41:30</span></div>
+                    <div class="message-text">后端 API 已启动，端口 3000</div>
+                  </div>
+                </div>
+                <div class="message commander">
+                  <div class="message-avatar commander">⭐</div>
+                  <div class="message-content">
+                    <div class="message-header"><span class="message-sender">Commander</span><span class="message-time">10:44:00</span></div>
+                    <div class="message-text">⚠️ 需要决策 - 前端登录页面有两种方案：<br>[A] 使用 Ant Design Pro 组件库<br>[B] 使用纯 CSS 自定义样式</div>
+                  </div>
+                </div>
+              </div>
+              <div class="command-input">
+                <input type="text" id="commandInput" placeholder="输入指令...">
+                <button onclick="sendCommand()">SEND</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tasks-section card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon"></span>MISSION CONTROL</div>
+              <button class="add-btn">+ New</button>
+            </div>
+            <div class="card-body">
+              <div class="tasks-list">
+                <div class="task-item running">
+                  <div class="task-header"><span class="task-name">Frontend Login Page</span><span class="task-status running">EXECUTING</span></div>
+                  <div class="task-meta"><span>👤 Soldier-B</span><span>⏱️ 3m 24s</span></div>
+                  <div class="task-progress"><div class="task-progress-bar" style="width:65%"></div></div>
+                </div>
+                <div class="task-item pending">
+                  <div class="task-header"><span class="task-name">Backend API Development</span><span class="task-status pending">PENDING</span></div>
+                  <div class="task-meta"><span>⏱️ Not started</span><span>📍 Node.js</span></div>
+                  <div class="task-progress"><div class="task-progress-bar" style="width:0%"></div></div>
+                </div>
+                <div class="task-item completed">
+                  <div class="task-header"><span class="task-name">Database Migration</span><span class="task-status completed">COMPLETED</span></div>
+                  <div class="task-meta"><span>✓ Completed</span><span>⏱️ 2m 15s</span></div>
+                </div>
+                <div class="task-item completed">
+                  <div class="task-header"><span class="task-name">API Documentation</span><span class="task-status completed">COMPLETED</span></div>
+                  <div class="task-meta"><span>✓ Completed</span><span>⏱️ 5m 42s</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monitor Page -->
+      <div class="page monitor-page" id="page-monitor">
+        <div class="monitor-layout">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon"></span>UNIT STATUS</div>
+              <button class="add-btn">+ Deploy</button>
+            </div>
+            <div class="card-body">
+              <div class="nodes-list">
+                <div class="node-item commander">
+                  <div class="node-info"><div class="node-status"></div><div><div class="node-name">Laptop-02 </div><div class="node-id">device-laptop-02</div></div></div>
+                  <div class="node-meta"><span class="capability-tag">CODING</span><span class="commander-badge">CMD</span><span class="node-load">78%</span></div>
+                </div>
+                <div class="node-item">
+                  <div class="node-info"><div class="node-status"></div><div><div class="node-name">Server-01 </div><div class="node-id">device-server-01</div></div></div>
+                  <div class="node-meta"><span class="capability-tag">CODING</span><span class="capability-tag">BROWSER</span><span class="node-load">45%</span></div>
+                </div>
+                <div class="node-item busy">
+                  <div class="node-info"><div class="node-status"></div><div><div class="node-name">PC-Zhang </div><div class="node-id">device-pc-zhang</div></div></div>
+                  <div class="node-meta"><span class="capability-tag">BROWSER</span><span class="capability-tag">FILE</span><span class="node-load">92%</span></div>
+                </div>
+                <div class="node-item offline">
+                  <div class="node-info"><div class="node-status"></div><div><div class="node-name">Mac-mini </div><div class="node-id">device-mac-mini</div></div></div>
+                  <div class="node-meta"><span class="node-load" style="color:var(--text-muted)">OFFLINE</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon"></span>NETWORK TOPOLOGY</div>
+            </div>
+            <div class="card-body">
+              <div class="topology">
+                <div class="topology-node commander" style="top:50%;left:50%;transform:translate(-50%,-50%)">CMD-B</div>
+                <div class="topology-node" style="top:20%;left:20%">SVR-01</div>
+                <div class="topology-node" style="top:20%;right:20%">PC-Z</div>
+                <div class="topology-node offline" style="bottom:20%;left:35%">MAC</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon"></span>SYSTEM LOGS</div>
+            </div>
+            <div class="card-body">
+              <div class="logs-list">
+                <div class="log-item"><span class="log-time">10:44:32</span><span class="log-type heartbeat">[heartbeat]</span><span class="log-message">device-laptop-02 synced</span></div>
+                <div class="log-item"><span class="log-time">10:44:30</span><span class="log-type election">[election]</span><span class="log-message">Commander confirmed: device-laptop-02</span></div>
+                <div class="log-item"><span class="log-time">10:41:15</span><span class="log-type task">[task]</span><span class="log-message">MISSION-002 assigned to Soldier-C</span></div>
+                <div class="log-item"><span class="log-time">10:38:22</span><span class="log-type alert">[alert]</span><span class="log-message">device-mac-mini heartbeat timeout</span></div>
+                <div class="log-item"><span class="log-time">10:35:10</span><span class="log-type heartbeat">[heartbeat]</span><span class="log-message">device-server-01 synced</span></div>
+                <div class="log-item"><span class="log-time">10:30:00</span><span class="log-type task">[task]</span><span class="log-message">MISSION-001 completed</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon"></span>RESOURCES</div>
+            </div>
+            <div class="card-body">
+              <div class="nodes-list">
+                <div class="node-item">
+                  <div class="node-info"><div><div class="node-name">CPU Usage</div></div></div>
+                  <div class="node-meta"><span class="node-load">67%</span></div>
+                </div>
+                <div class="node-item">
+                  <div class="node-info"><div><div class="node-name">Memory</div></div></div>
+                  <div class="node-meta"><span class="node-load">3.2GB / 8GB</span></div>
+                </div>
+                <div class="node-item">
+                  <div class="node-info"><div><div class="node-name">Network</div></div></div>
+                  <div class="node-meta"><span class="node-load">12.4 MB/s</span></div>
+                </div>
+                <div class="node-item">
+                  <div class="node-info"><div><div class="node-name">Uptime</div></div></div>
+                  <div class="node-meta"><span class="node-load">48h 32m</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let isDark = true;
+    function toggleTheme() {
+      isDark = !isDark;
+      document.body.classList.toggle('light', !isDark);
+      document.querySelector('.theme-toggle').textContent = isDark ? '🌙' : '☀️';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+    if (localStorage.getItem('theme') === 'light') toggleTheme();
+
+    function switchPage(page) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById('page-' + page).classList.add('active');
+    }
+
+    function sendCommand() {
+      const input = document.getElementById('commandInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+      const chat = document.getElementById('chatMessages');
+      const time = new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      chat.innerHTML += `<div class="message king"><div class="message-avatar king">👑</div><div class="message-content"><div class="message-header"><span class="message-sender">King</span><span class="message-time">${time}</span></div><div class="message-text">${msg}</div></div></div>`;
+      chat.scrollTop = chat.scrollHeight;
+      input.value = '';
+    }
+    document.getElementById('commandInput').addEventListener('keypress', e => { if(e.key==='Enter') sendCommand(); });
+  </script>
+</body>
+</html>
